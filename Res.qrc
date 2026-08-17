@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Icons/back.png</file>
+        <file>qml/Icons/download.png</file>
+        <file>qml/Icons/folder.png</file>
+        <file>qml/Icons/images.jpg</file>
+        <file>qml/Icons/pause.png</file>
+        <file>qml/Icons/playVideo.png</file>
+        <file>qml/Icons/stop_Video.png</file>
+        <file>qml/Icons/volume.png</file>
+        <file>qml/Icons/volume_off.png</file>
+        <file>qml/Icons/volume_on.png</file>
+        <file>qml/Resfiles/Quran_Index.xlsx</file>
+        <file>qml/Player.qml</file>
+        <file>qml/Custom/CustomButton.qml</file>
+        <file>qml/Custom/CustomCheckBox.qml</file>
+        <file>qml/Custom/CustomImageButton.qml</file>
+    </qresource>
+</RCC>
