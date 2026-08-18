@@ -24,6 +24,9 @@ qt_add_executable(appQuran
     #${TS_FILES}
 )
 
+set_target_properties(appQuran PROPERTIES
+   QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+
 qt_add_qml_module(appQuran
     URI Quran
     QML_FILES
@@ -32,6 +35,7 @@ qt_add_qml_module(appQuran
         QML_FILES Player.qml
         QML_FILES qml/Custom/CustomButton.qml qml/Custom/CustomCheckBox.qml qml/Custom/CustomImageButton.qml
         SOURCES cpp/QuranModel.cpp cpp/QuranModel.h cpp/XLSParser.cpp cpp/XLSParser.h
+        SOURCES cpp/Downloader.h cpp/Downloader.cpp
         #RESOURCES     qml/Icons/pause.png qml/Icons/playVideo.png qml/Icons/stop_Video.png qml/Icons/volume.png qml/Icons/volume_off.png qml/Icons/volume_on.png
         #RESOURCES qml/Icons/back.png qml/Icons/download.png qml/Icons/folder.png qml/Icons/images.jpg qml/Icons/pause.png qml/Icons/playVideo.png qml/Icons/stop_Video.png qml/Icons/volume.png qml/Icons/volume_off.png qml/Icons/volume_on.png
 )
@@ -51,6 +55,14 @@ if(ANDROID)
    set_property(TARGET appQuran APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
                  ${CMAKE_CURRENT_SOURCE_DIR}/android)
   set_property(TARGET appQuran PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+  set(android_openssl_SOURCE_DIR , "/media/mohammad/Virtualization/Projects/QML_MP3_Quran/openssl-3.3.0/Android")
+  set(libs
+      ${android_openssl_SOURCE_DIR}/libcrypto.so
+      ${android_openssl_SOURCE_DIR}/libcrypto_3.so
+      ${android_openssl_SOURCE_DIR}/libssl.so
+      ${android_openssl_SOURCE_DIR}/libssl_3.so
+  )
+set_target_properties(appQuran PROPERTIES  QT_ANDROID_EXTRA_LIBS  "${libs}")
 
 endif()
 add_subdirectory(QXlsx/QXlsx)

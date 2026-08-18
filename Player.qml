@@ -5,12 +5,18 @@ import "./qml/Custom"
 
 Item {
     id: _itm
-    property real sliderStoredValue: 0.9
+    property real sliderStoredValue: 0.05
     property bool soundDisabled: false
+    property int readerID: 0
+    Rectangle{
+        anchors.fill: parent
+        color: "beige"
+    }
+
     MediaPlayer {
         id: playerQuran
         //source: "https://server11.mp3quran.net/shatri/001.mp3"
-        source: "https://audio-samples.github.io/samples/mp3/music/sample-2.mp3"
+        //source: "https://audio-samples.github.io/samples/mp3/music/sample-2.mp3"
         audioOutput: AudioOutput {
             volume: slider.value
         }
@@ -18,7 +24,7 @@ Item {
     }
     Timer{
         id: checkTimer
-        interval: 9 * 1000
+        interval: 3 * 1000
         running: false
         onTriggered: {
             playerQuran.play()
@@ -31,6 +37,7 @@ Item {
     }
 
     Row{
+        id: buttonsRow
         spacing: 20
         anchors{
             top: parent.top
@@ -81,6 +88,7 @@ Item {
     }
     Slider {
         id: slider
+        height: 50
         anchors{
             top: parent.top
             topMargin: 30
@@ -91,45 +99,146 @@ Item {
         to: 1.
         value: soundDisabled ? 0 : sliderStoredValue
     }
-    ListView {
-        id: viewer
-        width: 200; height: parent.height
+    CustomImageButton{
+        id: quitApp
+        width: 40
+        height: width
+        imageSource: "qrc:/qml/Icons/quit.png"
         anchors{
-            top: slider.bottom
-            topMargin: 50
+            top: parent.top
+            topMargin: 20
+            right:  parent.right
+            rightMargin: 20
+        }
+        onPressed: {
+            close()
+        }
+    }
+    Row{
+        id:selectReaderRow
+        anchors{
+            right: parent.right
+            rightMargin: 40
+            top: buttonsRow.bottom
+            topMargin: 30
+
+        }
+
+        spacing: 20
+        Rectangle{
+            id: totalRect
+            width: 100
+            height: 10
+            anchors.verticalCenter: readerCombo.verticalCenter
+            color: "transparent"
+            radius: 5
+            border{
+                color: "blue"
+                width: 1
+            }
+
+            Connections{
+                target: networkDownloader
+                function onProgressChanged(received , total){
+                    //totalRect.width = total /10000
+                    progressRect.width = 100 * received / total
+                }
+            }
+                Rectangle{
+                    id: progressRect
+                    width: 0
+                    height: parent.height
+                    color: "red"
+                }
+        }
+        ComboBox {
+            id:readerCombo
+            model: ListModel {
+                id: model
+                ListElement { text: "الشاطري" }
+                ListElement { text: "المعصراوي" }
+                ListElement { text: "عبدالباسط" }
+            }
+            onCurrentIndexChanged: {
+                _itm.readerID = currentIndex
+                console.log("Reader \n\n" , _itm.readerID)
+            }
+        }
+        Label{
+            text: "القارئ"
+            width: 100
+            anchors.verticalCenter: readerCombo.verticalCenter
+            font{
+                //bold: true
+                pixelSize: 15
+            }
+        }
+    }
+
+    ListView {
+        id: quranList
+        width: _itm.width ; height: parent.height
+        snapMode: ListView.SnapToItem
+        clip: true
+        anchors{
+            top: buttonsRow.bottom
+            topMargin: 100
             horizontalCenter: parent.horizontalCenter
+            bottom: parent.bottom
+            bottomMargin: 50
         }
         model: quranModel
         delegate: Rectangle{
+            id: soraRect
+            property bool isSelected: false
             height: 50
-            width: 200
+            width: quranList.width
             radius: 16
-            color: index === viewer.currentIndex ? "yellow" : "transparent"
-            opacity: index === viewer.currentIndex ? 0.5 : 1
+            color: index === quranList.currentIndex ? "yellow" : "transparent"
+            opacity: index === quranList.currentIndex ? 0.5 : 1
             border{
-                width: 0
+                width: index === quranList.currentIndex ? 1 : 0
                 color: "black"
             }
 
             Row{
                 anchors.centerIn: parent
-                spacing: 20
+                spacing: 10
+                Label{
+                    width: 150
+                    text: " وعدد آياتها - " + SoraCount
+                    font{
+                        //bold: true
+                        pixelSize: 15
+                    }
+                }
+                Label{
+                    width: 70
+                    text: SoraLocation
+                    font{
+                        //bold: true
+                        pixelSize: 15
+                    }
+                }
+                Label{
+                    width: 80
+                    text: SoraName
+                    //color: ma.entered ? "green" : "#000000"
+                    font{
+                        bold: true
+                        pixelSize: 20
+                    }
+                }
                 Label{
                     width: 100
                     text: SoraNumber //+ " - "
                     font{
+                        bold: true
                         pixelSize: 20
                     }
                 }
 
-                Label{
-                    width: 100
-                    text: SoraName
-                    //color: ma.entered ? "green" : "#000000"
-                    font{
-                        pixelSize: 20
-                    }
-                }
+
             }
             MouseArea{
                 id:ma
@@ -137,11 +246,12 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 onReleased: {
-                    //parent.color = "yellow"
-                    viewer.currentIndex = index
+                    soraRect.isSelected = true
+                    quranList.currentIndex = index
                     //parent.opacity = 0.5
                     //console.log("path:" , fileURL)
                     playerQuran.source = constructURL(SoraNumber)
+                    //playerQuran.source = playLocalFile(SoraNumber)
                     playAudio()
                 }
             }
@@ -154,10 +264,38 @@ Item {
         checkTimer.start()
     }
     function constructURL(index){
-        var url = "https://server11.mp3quran.net/shatri/"// "https://server11.mp3quran.net/shatri/"
-        url += index
-        url += ".mp3"
+        var url
+        switch(_itm.readerID){
+        case 0:
+            url = "https://server11.mp3quran.net/shatri/"// "https://server11.mp3quran.net/shatri/";
+            break
+        case 1:
+            url = "https://server16.mp3quran.net/a_maasaraawi/Rewayat-Hafs-A-n-Assem/"
+            break
+        case 2:
+            url = "https://server7.mp3quran.net/basit/"
+            break
+        }
+        const fileName = index + ".mp3"
+        url += fileName
+        //url += ".mp3"
         console.log("player url :" , url)
+        const _soraFile = networkDownloader.checkSoraDownloaded(index,_itm.readerID)
+        if(_soraFile === "") {
+            console.log("Downloading Sora " + index)
+            networkDownloader.startDownload(url, fileName , _itm.readerID)
+        } else{
+            console.log("play from local file " , _soraFile)
+            url = "file:///" +  _soraFile
+        }
+
+        return url
+    }
+    function playLocalFile(index){
+        var url = "file:///storage/sdcard0/Quran/003.mp3"
+        quranModel.checkURL(url)
+        //url +=index
+        //url +=".mp3"
         return url
     }
 }

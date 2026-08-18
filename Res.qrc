@@ -15,5 +15,6 @@
         <file>qml/Custom/CustomButton.qml</file>
         <file>qml/Custom/CustomCheckBox.qml</file>
         <file>qml/Custom/CustomImageButton.qml</file>
+        <file>qml/Icons/quit.png</file>
     </qresource>
 </RCC>

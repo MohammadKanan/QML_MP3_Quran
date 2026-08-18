@@ -40,7 +40,7 @@ class QuranModel : public QAbstractListModel
     {
         SORAINDEX = Qt::UserRole + 1,
         SORANAME,
-        SORAPLACE,
+        MakiMadani,
         SORAVERSTCOUNT
     };
 public:
@@ -50,11 +50,12 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     void updateModel();
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Q_INVOKABLE bool checkURL(const QString path);
     QHash<int, QByteArray> roleNames() const override
     {
         QHash<int, QByteArray> roles;
         roles[SORAINDEX] = "SoraNumber";
-        roles[SORAPLACE] = "SoraLocation";
+        roles[MakiMadani] = "SoraLocation";
         roles[SORAVERSTCOUNT] = "SoraCount";
         roles[SORANAME] = "SoraName";
         return roles;

@@ -34,9 +34,10 @@ void XLSParser::fetchDocsFromFile()
             const auto D = QString("D%1").arg(i);
             AyatCount = xlsxR.read(D).toString();
             const auto E = QString("E%1").arg(i);
-            const auto makiaVsMadania = xlsxR.read(E).toString();
-            const auto city_ID = xlsxR.read(QString("E%1").arg(i)).toString();
-            const auto Country_ID = xlsxR.read(QString("F%1").arg(i)).toString();
+            const auto wordCount = xlsxR.read(E).toString();
+            const auto F = QString("F%1").arg(i);
+            const auto letterCount = xlsxR.read(F).toString();
+            //const auto Country_ID = xlsxR.read(QString("F%1").arg(i)).toString();
             //qDebug() << Number << "/" << Name << "/" << AyatCount;
             // Query!!
 
@@ -44,7 +45,7 @@ void XLSParser::fetchDocsFromFile()
             databaseQuery.bindValue(":index" , Number);
             databaseQuery.bindValue(":name" , Name);
             databaseQuery.bindValue(":count" , AyatCount);
-            databaseQuery.bindValue(":whereis" , makiaVsMadania);
+            databaseQuery.bindValue(":whereis" , MakiMadani);
             if(!databaseQuery.exec()){
                 qDebug() << "Failed to insert record! .." << databaseQuery.lastQuery();
                 qDebug() << databaseQuery.lastError();

@@ -1,5 +1,6 @@
 #include "QuranModel.h"
 #include <QJsonObject>
+#include <QFileInfo>
 QuranModel::QuranModel(QObject *parent)
     : QAbstractListModel(parent)
 {
@@ -35,12 +36,28 @@ QVariant QuranModel::data(const QModelIndex &index, int role) const
         return quranSora.getName();
     case Roles::SORAVERSTCOUNT:
         return quranSora.getVerstCount();
+    case Roles::MakiMadani:
+        return quranSora.getLocation();
 
         break;
     default:
         break;
     }
     return QVariant();
+}
+
+bool QuranModel::checkURL(const QString path)
+{
+    QUrl url(path);
+    QFileInfo info(url.toLocalFile());
+    qDebug() << "Checking file :" << url.toLocalFile();
+    if(info.exists()){
+        qDebug() << "URL : " << path << " Is valid!!!!";
+        return true;
+    } else{
+        qDebug() << "Invalid path !! " << path << "  !!!!!!!!!!!!!!";
+        return false;
+    }
 }
 void QuranModel::updateModel()
 {
