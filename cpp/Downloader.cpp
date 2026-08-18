@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QStandardPaths>
+#include <QTimer>
 
 Downloader::Downloader(QObject *parent)
     : QObject{parent}
@@ -17,6 +18,8 @@ Downloader::~Downloader()
 void Downloader::startDownload(const QUrl &url, const QString &savePath , const int _folder)
 {
     //QDir dir(QCoreApplication::applicationDirPath());
+    QDir tmpDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+    const auto tmpFile = tmpDir.absolutePath() + "/" + savePath;
     QDir dir(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
     if (!dir.cd("Quran")){
         qDebug() << "Creating Quran  ...";
@@ -26,16 +29,32 @@ void Downloader::startDownload(const QUrl &url, const QString &savePath , const 
 
     dir.mkdir(QString("%1").arg(_folder));
     dir.cd(QString("%1").arg(_folder));
-    auto full_PATH = dir.absolutePath() + "/";
-    full_PATH += savePath;
-    qDebug() << "Starting download ..." << url << " ..to " << full_PATH;
-    m_file.setFileName(full_PATH);
+    full_Path = dir.absolutePath() + "/";
+    full_Path += savePath;
+    qDebug() << "Starting download ..." << url << " ..to " << tmpFile;
+    m_file.setFileName(tmpFile);
     connect(this, &Downloader::progressChanged, [](qint64 received, qint64 total) {
-        qDebug() << "Progress:" << received << "/" << total << "bytes";
+        //qDebug() << "Progress:" << received << "/" << total << "bytes";
     });
 
-    connect(this, &Downloader::downloadFinished, [](bool success, const QString &msg) {
+    connect(this, &Downloader::downloadFinished, [&](bool success, const QString &msg) {
         qDebug() << (success ? "Success: " : "Error: ") << msg;
+        // copy downloaded file to full path!
+        QTimer::singleShot(std::chrono::milliseconds(500), [&](){
+            try {
+                qDebug() << "Renaming to " << full_Path << ".";
+                if(m_file.isOpen())
+                    m_file.close();
+                // remove existing file
+                QFile _file(full_Path);
+                _file.remove();
+                m_file.rename(full_Path);
+            } catch (const std::bad_alloc& e) {
+                qDebug() << "Out of memory: " << e.what() << '\n';
+            }
+
+        });
+
     });
     // Open the local file for writing chunked data
     if (!m_file.open(QIODevice::WriteOnly)) {

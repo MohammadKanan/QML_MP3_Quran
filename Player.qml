@@ -7,7 +7,16 @@ Item {
     id: _itm
     property real sliderStoredValue: 0.05
     property bool soundDisabled: false
+    property bool downloading: false
     property int readerID: 0
+
+    Connections{
+        target: networkDownloader
+        function onDownloadFinished(){
+            _itm.downloading = false
+        }
+    }
+
     Rectangle{
         anchors.fill: parent
         color: "beige"
@@ -15,8 +24,15 @@ Item {
 
     MediaPlayer {
         id: playerQuran
-        //source: "https://server11.mp3quran.net/shatri/001.mp3"
+        property bool mediaValid: true
+        property string sora: ""
+        //source: "https://server11.mp3quran.net/shatri/002.mp3"
         //source: "https://audio-samples.github.io/samples/mp3/music/sample-2.mp3"
+        onPositionChanged:{
+            //console.log("Current position (ms): " + playerQuran.position + "/" + playerQuran.duration)
+            soraProgress.value = 100 * (playerQuran.position / playerQuran.duration)
+        }
+
         audioOutput: AudioOutput {
             volume: slider.value
         }
@@ -28,10 +44,15 @@ Item {
         running: false
         onTriggered: {
             playerQuran.play()
-            if(playerQuran.mediaStatus === MediaPlayer.InvalidMedia)
-                console.log("invalid media", playerQuran.mediaStatus)
+            if(playerQuran.mediaStatus === MediaPlayer.InvalidMedia){
+                console.log("Media is : invalid media", playerQuran.mediaStatus)
+                playerQuran.mediaValid = false
+                playerQuran.source = constructURL(playerQuran.sora)
+                playerQuran.play()
+            }
             else
                 console.log("The player status :" , playerQuran.mediaStatus)
+            playerQuran.mediaValid = true
             console.log("Timer ..., player status :" , playerQuran.mediaStatus === MediaPlayer.BufferedMedia ? "MediaPlayer.Buffered" :  playerQuran.mediaStatus , playerQuran.playing)
         }
     }
@@ -49,17 +70,20 @@ Item {
             width: 40
             height: width
             imageSource: "qrc:/qml/Icons/playVideo.png"
+            opacity: pressed ? 0.5 :1
             onPressed: playerQuran.play()
         }
         CustomImageButton{
             width: 40
             height: width
+            opacity: pressed ? 0.5 :1
             imageSource: "qrc:/qml/Icons/pause.png"
             onPressed: playerQuran.pause()
         }
         CustomImageButton{
             width: 40
             height: width
+            opacity: pressed ? 0.5 :1
             imageSource:  "qrc:/qml/Icons/stop_Video.png"
             onPressed: playerQuran.stop()
         }
@@ -125,32 +149,6 @@ Item {
         }
 
         spacing: 20
-        Rectangle{
-            id: totalRect
-            width: 100
-            height: 10
-            anchors.verticalCenter: readerCombo.verticalCenter
-            color: "transparent"
-            radius: 5
-            border{
-                color: "blue"
-                width: 1
-            }
-
-            Connections{
-                target: networkDownloader
-                function onProgressChanged(received , total){
-                    //totalRect.width = total /10000
-                    progressRect.width = 100 * received / total
-                }
-            }
-                Rectangle{
-                    id: progressRect
-                    width: 0
-                    height: parent.height
-                    color: "red"
-                }
-        }
         ComboBox {
             id:readerCombo
             model: ListModel {
@@ -174,6 +172,102 @@ Item {
             }
         }
     }
+    Rectangle{
+        id: downloadRect
+        visible: _itm.downloading
+        width: 100
+        height: 40
+        anchors{
+            top: selectReaderRow.bottom
+            horizontalCenter: selectReaderRow.horizontalCenter
+            topMargin: 40
+        }
+
+        color: "transparent"
+        radius: 5
+
+        Connections{
+            target: networkDownloader
+            function onProgressChanged(received , total){
+                progressRect.width = 100 * received / total
+            }
+        }
+        Label{
+            id: downloadLbl
+            text: qsTr("Downloading")
+            font{
+                //bold: true
+                pixelSize: 15
+            }
+        }
+        Rectangle{
+            id: progressRect
+            anchors{
+                top: downloadLbl.bottom
+                topMargin: 10
+            }
+
+            width: 0
+            radius: parent.radius
+            height: 20
+            color: "red"
+        }
+
+    }
+    Slider {
+        id: soraProgress
+        width: 300
+        from: 0
+        to: 100
+        anchors{
+            top: downloadRect.bottom
+            horizontalCenter: parent.horizontalCenter
+            topMargin: 5
+        }
+        onValueChanged:{
+            //console.log("current value" , soraProgress.value/100)
+        }
+
+        background: Rectangle {
+            x: soraProgress.leftPadding
+            y: soraProgress.topPadding + soraProgress.availableHeight / 2 - height / 2
+            implicitWidth: 300
+            implicitHeight: 4
+            width: soraProgress.availableWidth
+            height: implicitHeight
+            radius: 5
+            color: "#bdbebf"
+
+            Rectangle {
+                width: soraProgress.visualPosition * parent.width
+                height: parent.height
+                color: "#21be2b"
+                radius: 5
+            }
+        }
+
+        handle: Rectangle {
+            visible: progressMA.isEntered
+            x: soraProgress.leftPadding + soraProgress.visualPosition * (soraProgress.availableWidth - width)
+            y: soraProgress.topPadding + soraProgress.availableHeight / 2 - height / 2
+            z: 1
+            implicitWidth: 20
+            implicitHeight: 20
+            radius: 10
+            color: soraProgress.pressed ? "#f0f0f0" : "lightgreen"
+            border.color: "#bdbebf"
+        }
+        MouseArea{
+            id:progressMA
+            z: 0
+            property bool isEntered: false
+            anchors.fill: soraProgress
+            hoverEnabled: true
+            onEntered: {isEntered = true  ; progressMA.enabled = false}
+            onExited: { isEntered = false ; progressMA.enabled = true}
+
+        }
+    }
 
     ListView {
         id: quranList
@@ -181,8 +275,8 @@ Item {
         snapMode: ListView.SnapToItem
         clip: true
         anchors{
-            top: buttonsRow.bottom
-            topMargin: 100
+            top: downloadRect.bottom
+            topMargin: 60
             horizontalCenter: parent.horizontalCenter
             bottom: parent.bottom
             bottomMargin: 50
@@ -250,6 +344,7 @@ Item {
                     quranList.currentIndex = index
                     //parent.opacity = 0.5
                     //console.log("path:" , fileURL)
+                    playerQuran.sora = SoraNumber
                     playerQuran.source = constructURL(SoraNumber)
                     //playerQuran.source = playLocalFile(SoraNumber)
                     playAudio()
@@ -267,7 +362,7 @@ Item {
         var url
         switch(_itm.readerID){
         case 0:
-            url = "https://server11.mp3quran.net/shatri/"// "https://server11.mp3quran.net/shatri/";
+            url = "https://server11.mp3quran.net/shatri/"
             break
         case 1:
             url = "https://server16.mp3quran.net/a_maasaraawi/Rewayat-Hafs-A-n-Assem/"
@@ -278,17 +373,22 @@ Item {
         }
         const fileName = index + ".mp3"
         url += fileName
-        //url += ".mp3"
         console.log("player url :" , url)
-        const _soraFile = networkDownloader.checkSoraDownloaded(index,_itm.readerID)
-        if(_soraFile === "") {
-            console.log("Downloading Sora " + index)
+        if (!playerQuran.mediaValid){
+            _itm.downloading = true;
             networkDownloader.startDownload(url, fileName , _itm.readerID)
-        } else{
-            console.log("play from local file " , _soraFile)
-            url = "file:///" +  _soraFile
+        }else{
+            const _soraFile = networkDownloader.checkSoraDownloaded(index,_itm.readerID)
+            if(_soraFile === "" ) {
+                console.log("Downloading Sora " + index)
+                networkDownloader.startDownload(url, fileName , _itm.readerID)
+                _itm.downloading = true;
+            } else{
+                console.log("play from local file " , _soraFile)
+                url = "file:///" +  _soraFile
+            }
         }
-
+        //checkTimer.start()
         return url
     }
     function playLocalFile(index){
