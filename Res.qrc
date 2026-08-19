@@ -11,10 +11,11 @@
         <file>qml/Icons/volume_off.png</file>
         <file>qml/Icons/volume_on.png</file>
         <file>qml/Resfiles/Quran_Index.xlsx</file>
-        <file>qml/Player.qml</file>
         <file>qml/Custom/CustomButton.qml</file>
         <file>qml/Custom/CustomCheckBox.qml</file>
         <file>qml/Custom/CustomImageButton.qml</file>
         <file>qml/Icons/quit.png</file>
+        <file>qml/Icons/loop3.png</file>
+        <file>qml/Icons/infinite_Read.png</file>
     </qresource>
 </RCC>

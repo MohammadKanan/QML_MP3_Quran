@@ -9,6 +9,7 @@ Item {
     property bool soundDisabled: false
     property bool downloading: false
     property int readerID: 0
+    signal loadNextSora()
 
     Connections{
         target: networkDownloader
@@ -25,18 +26,38 @@ Item {
     MediaPlayer {
         id: playerQuran
         property bool mediaValid: true
+        property bool infinit: false
+        property bool contineous: false
         property string sora: ""
+        property real latestPosition: 0
         //source: "https://server11.mp3quran.net/shatri/002.mp3"
         //source: "https://audio-samples.github.io/samples/mp3/music/sample-2.mp3"
+        loops: playerQuran.infinit ? MediaPlayer.Infinite : 1
         onPositionChanged:{
             //console.log("Current position (ms): " + playerQuran.position + "/" + playerQuran.duration)
-            soraProgress.value = 100 * (playerQuran.position / playerQuran.duration)
+            latestPosition = 100 * (playerQuran.position / playerQuran.duration)
+        }
+        onMediaStatusChanged:{
+            if (mediaStatus === MediaPlayer.EndOfMedia && contineous){
+                console.log("Media finished .....................!!!!")
+                _itm.loadNextSora()
+                console.log("Now is : " , sora)
+                var soraNumNext = Number(sora) + 1
+                var nextSora = "" + soraNumNext
+                while(nextSora.length < 3){
+                    nextSora = "0" + nextSora
+                }
+                console.log("length is ............................" , nextSora.length)
+                playerQuran.sora = nextSora
+                playerQuran.source = constructURL(nextSora)
+                playerQuran.play()
+            }
         }
 
         audioOutput: AudioOutput {
             volume: slider.value
         }
-        Component.onCompleted: _itm.playAudio()
+        //Component.onCompleted: _itm.playAudio()
     }
     Timer{
         id: checkTimer
@@ -86,6 +107,29 @@ Item {
             opacity: pressed ? 0.5 :1
             imageSource:  "qrc:/qml/Icons/stop_Video.png"
             onPressed: playerQuran.stop()
+        }
+        CustomImageButton{
+            id:loopSetter
+            width: 40
+            height: width
+            anchors.verticalCenter: parent.verticalCenter
+            opacity: pressed ? 0.5 :1
+            imageSource: "qrc:/qml/Icons/loop3.png"
+            onPressed: {
+                playerQuran.infinit = !playerQuran.infinit
+            }
+        }
+        CustomImageButton{
+            id:continueosSetter
+            width: 40
+            height: width
+            anchors.verticalCenter: loopSetter.verticalCenter
+            anchors.verticalCenterOffset: 10
+            opacity: pressed ? 0.5 :1
+            imageSource: "qrc:/qml/Icons/infinite_Read.png"
+            onPressed: {
+                playerQuran.contineous = !playerQuran.contineous
+            }
         }
     }
 
@@ -138,6 +182,7 @@ Item {
             close()
         }
     }
+
     Row{
         id:selectReaderRow
         anchors{
@@ -148,7 +193,7 @@ Item {
 
         }
 
-        spacing: 20
+        spacing: 5
         ComboBox {
             id:readerCombo
             model: ListModel {
@@ -219,6 +264,8 @@ Item {
         width: 300
         from: 0
         to: 100
+        snapMode: Slider.SnapOnRelease
+        value: playerQuran.latestPosition
         anchors{
             top: downloadRect.bottom
             horizontalCenter: parent.horizontalCenter
@@ -227,7 +274,13 @@ Item {
         onValueChanged:{
             //console.log("current value" , soraProgress.value/100)
         }
+        onMoved:{
 
+                const aPosition = soraProgress.value
+                playerQuran.setPosition(value*playerQuran.duration/100)
+                //value = playerQuran.latestPosition
+                console.log("current Value : " , soraProgress.value)
+            }
         background: Rectangle {
             x: soraProgress.leftPadding
             y: soraProgress.topPadding + soraProgress.availableHeight / 2 - height / 2
@@ -256,6 +309,7 @@ Item {
             radius: 10
             color: soraProgress.pressed ? "#f0f0f0" : "lightgreen"
             border.color: "#bdbebf"
+
         }
         MouseArea{
             id:progressMA
@@ -272,7 +326,7 @@ Item {
     ListView {
         id: quranList
         width: _itm.width ; height: parent.height
-        snapMode: ListView.SnapToItem
+        //snapMode: ListView.SnapToItem
         clip: true
         anchors{
             top: downloadRect.bottom
@@ -280,6 +334,16 @@ Item {
             horizontalCenter: parent.horizontalCenter
             bottom: parent.bottom
             bottomMargin: 50
+        }
+        Connections{
+            target: _itm
+            function onLoadNextSora(){
+                    //console.log("current is : " , SoraNumber)
+                                if (quranList.currentIndex < quranList.count - 1) {
+                                    quranList.incrementCurrentIndex()
+                                }
+
+            }
         }
         model: quranModel
         delegate: Rectangle{
@@ -331,9 +395,8 @@ Item {
                         pixelSize: 20
                     }
                 }
-
-
             }
+
             MouseArea{
                 id:ma
                 enabled: true
