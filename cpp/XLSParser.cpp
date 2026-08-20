@@ -30,13 +30,13 @@ void XLSParser::fetchDocsFromFile()
             const auto B = QString("B%1").arg(i);
             Name = xlsxR.read(B).toString().trimmed();
             const auto C = QString("C%1").arg(i);
-            MakiMadani = xlsxR.read(C).toString();
+            MakiMadani = xlsxR.read(C).toString().trimmed();
             const auto D = QString("D%1").arg(i);
-            AyatCount = xlsxR.read(D).toString();
+            AyatCount = xlsxR.read(D).toString().trimmed();
             const auto E = QString("E%1").arg(i);
-            const auto wordCount = xlsxR.read(E).toString();
+            const auto wordCount = xlsxR.read(E).toString().trimmed();
             const auto F = QString("F%1").arg(i);
-            const auto letterCount = xlsxR.read(F).toString();
+            const auto letterCount = xlsxR.read(F).toString().trimmed();
             //const auto Country_ID = xlsxR.read(QString("F%1").arg(i)).toString();
             //qDebug() << Number << "/" << Name << "/" << AyatCount;
             // Query!!

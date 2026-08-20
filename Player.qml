@@ -41,8 +41,10 @@ Item {
             if (mediaStatus === MediaPlayer.EndOfMedia && contineous){
                 console.log("Media finished .....................!!!!")
                 _itm.loadNextSora()
-                console.log("Now is : " , sora)
+                console.log("Now is : " , "'" , sora, "'")
                 var soraNumNext = Number(sora) + 1
+                if(soraNumNext === 115)
+                    soraNumNext = 1
                 var nextSora = "" + soraNumNext
                 while(nextSora.length < 3){
                     nextSora = "0" + nextSora
@@ -110,25 +112,29 @@ Item {
         }
         CustomImageButton{
             id:loopSetter
+            property real theOpacity: 1
             width: 40
             height: width
             anchors.verticalCenter: parent.verticalCenter
-            opacity: pressed ? 0.5 :1
+            opacity: theOpacity
             imageSource: "qrc:/qml/Icons/loop3.png"
             onPressed: {
                 playerQuran.infinit = !playerQuran.infinit
+                theOpacity = (theOpacity === 1) ? 0.4 : 1
             }
         }
         CustomImageButton{
             id:continueosSetter
+            property real theOpacity: 1
             width: 40
             height: width
             anchors.verticalCenter: loopSetter.verticalCenter
             anchors.verticalCenterOffset: 10
-            opacity: pressed ? 0.5 :1
+            opacity: theOpacity
             imageSource: "qrc:/qml/Icons/infinite_Read.png"
             onPressed: {
                 playerQuran.contineous = !playerQuran.contineous
+                theOpacity = (theOpacity === 1) ? 0.4 : 1
             }
         }
     }
@@ -341,7 +347,7 @@ Item {
                     //console.log("current is : " , SoraNumber)
                                 if (quranList.currentIndex < quranList.count - 1) {
                                     quranList.incrementCurrentIndex()
-                                }
+                                } else quranList.currentIndex = 0
 
             }
         }
@@ -350,7 +356,8 @@ Item {
             id: soraRect
             property bool isSelected: false
             height: 50
-            width: quranList.width
+            width: quranList.width/2
+            anchors.right: quranList.right
             radius: 16
             color: index === quranList.currentIndex ? "yellow" : "transparent"
             opacity: index === quranList.currentIndex ? 0.5 : 1
