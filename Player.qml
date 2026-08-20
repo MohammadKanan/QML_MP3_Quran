@@ -356,7 +356,7 @@ Item {
             id: soraRect
             property bool isSelected: false
             height: 50
-            width: quranList.width/2
+            width: quranList.width
             anchors.right: quranList.right
             radius: 16
             color: index === quranList.currentIndex ? "yellow" : "transparent"
