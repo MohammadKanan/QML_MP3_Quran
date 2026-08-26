@@ -59,7 +59,12 @@ Item {
         audioOutput: AudioOutput {
             volume: slider.value
         }
-        //Component.onCompleted: _itm.playAudio()
+        Component.onCompleted: {
+            //playerQuran.source = constructURL(nextSora)
+            sora = theSettings.sora
+            playerQuran.position = theSettings.position
+
+        }
     }
     Timer{
         id: checkTimer
@@ -185,6 +190,8 @@ Item {
             rightMargin: 20
         }
         onPressed: {
+             // const int _reader, const int& _sora , const QString& _soraURL, const double _position
+            theSettings.saveSettings(_itm.readerID,  quranList.currentIndex + 1, playerQuran.source , playerQuran.position)
             close()
         }
     }
@@ -208,6 +215,7 @@ Item {
                 ListElement { text: "المعصراوي" }
                 ListElement { text: "عبدالباسط" }
             }
+            currentIndex: theSettings.reader
             onCurrentIndexChanged: {
                 _itm.readerID = currentIndex
                 console.log("Reader \n\n" , _itm.readerID)
@@ -337,7 +345,8 @@ Item {
         anchors{
             top: downloadRect.bottom
             topMargin: 60
-            horizontalCenter: parent.horizontalCenter
+            //horizontalCenter: parent.horizontalCenter
+            right: parent.right
             bottom: parent.bottom
             bottomMargin: 50
         }
@@ -352,12 +361,13 @@ Item {
             }
         }
         model: quranModel
+        currentIndex: theSettings.sora - 1
         delegate: Rectangle{
             id: soraRect
             property bool isSelected: false
             height: 50
             width: quranList.width
-            anchors.right: quranList.right
+            anchors.right: ListView.right
             radius: 16
             color: index === quranList.currentIndex ? "yellow" : "transparent"
             opacity: index === quranList.currentIndex ? 0.5 : 1
@@ -395,8 +405,9 @@ Item {
                     }
                 }
                 Label{
+                    id: soraNumLbl
                     width: 100
-                    text: SoraNumber //+ " - "
+                    text: quranList.getSoraStringIndex(SoraNumber) //+ " - "
                     font{
                         bold: true
                         pixelSize: 20
@@ -414,8 +425,8 @@ Item {
                     quranList.currentIndex = index
                     //parent.opacity = 0.5
                     //console.log("path:" , fileURL)
-                    playerQuran.sora = SoraNumber
-                    playerQuran.source = constructURL(SoraNumber)
+                    playerQuran.sora = soraNumLbl.text
+                    playerQuran.source = constructURL(playerQuran.sora)
                     //playerQuran.source = playLocalFile(SoraNumber)
                     playAudio()
                 }
@@ -423,6 +434,12 @@ Item {
 
         }
         Component.onCompleted: currentIndex = -1
+        function getSoraStringIndex(soraNumber){
+            var newSoraNumber = "" + soraNumber
+            while(newSoraNumber.length < 3)
+                newSoraNumber = "0" + newSoraNumber;
+            return newSoraNumber
+        }
     }
     function playAudio(){
         //playerQuran.play()
@@ -443,7 +460,7 @@ Item {
         }
         const fileName = index + ".mp3"
         url += fileName
-        console.log("player url :" , url)
+        //console.log("player url :" , url)
         if (!playerQuran.mediaValid){
             _itm.downloading = true;
             networkDownloader.startDownload(url, fileName , _itm.readerID)

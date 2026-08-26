@@ -25,11 +25,11 @@ QVariant QuranModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Roles::SORAINDEX:
     {
-        QString Index = quranSora.getIndex();
-        if(Index.length() == 1)
-            Index = QString("00%1").arg(Index);
-        else if(Index.length() == 2)
-            Index = QString("0%1").arg(Index);
+        auto Index = quranSora.getIndex();
+        //if(Index.length() == 1)
+            //Index = QString("00%1").arg(Index);
+        //else if(Index.length() == 2)
+            //Index = QString("0%1").arg(Index);
         return Index;
     }
     case Roles::SORANAME:

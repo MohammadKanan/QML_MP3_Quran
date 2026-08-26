@@ -58,5 +58,6 @@ ApplicationWindow {
     Player{
         id: quranPlayer
         anchors.fill: parent
+        anchors.right: parent.right
     }
 }

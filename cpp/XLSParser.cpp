@@ -22,17 +22,18 @@ void XLSParser::fetchDocsFromFile()
     Document xlsxR(excelPath);
     if (xlsxR.load()) // load excel file
     {
-        QString Number , Name , MakiMadani , AyatCount;
+        int Number, AyatCount;
+        QString  Name , MakiMadani ;
 
         for (int i=2 ; i < 116 ; i++){
             const auto A = QString("A%1").arg(i);
-            Number = xlsxR.read(A).toString().trimmed();
+            Number = xlsxR.read(A).toInt();
             const auto B = QString("B%1").arg(i);
             Name = xlsxR.read(B).toString().trimmed();
             const auto C = QString("C%1").arg(i);
             MakiMadani = xlsxR.read(C).toString().trimmed();
             const auto D = QString("D%1").arg(i);
-            AyatCount = xlsxR.read(D).toString().trimmed();
+            AyatCount = xlsxR.read(D).toInt();
             const auto E = QString("E%1").arg(i);
             const auto wordCount = xlsxR.read(E).toString().trimmed();
             const auto F = QString("F%1").arg(i);

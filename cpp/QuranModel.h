@@ -16,8 +16,8 @@ public:
     QString getName() const{
         return SoraName;
     }
-    const QString getIndex() const{
-        return QString("%1").arg(Index);
+    const int getIndex() const{
+        return Index;//QString("%1").arg(Index);
     }
     const int getVerstCount()const {
         return VerstCount;

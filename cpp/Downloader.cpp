@@ -15,11 +15,11 @@ Downloader::~Downloader()
     }
 }
 
-void Downloader::startDownload(const QUrl &url, const QString &savePath , const int _folder)
+void Downloader::startDownload(const QUrl &url, const QString &mp3File , const int _folder)
 {
     //QDir dir(QCoreApplication::applicationDirPath());
     QDir tmpDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
-    const auto tmpFile = tmpDir.absolutePath() + "/" + savePath;
+    const auto tmpFile = tmpDir.absolutePath() + "/" + mp3File;
     QDir dir(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
     if (!dir.cd("Quran")){
         qDebug() << "Creating Quran  ...";
@@ -30,7 +30,7 @@ void Downloader::startDownload(const QUrl &url, const QString &savePath , const 
     dir.mkdir(QString("%1").arg(_folder));
     dir.cd(QString("%1").arg(_folder));
     full_Path = dir.absolutePath() + "/";
-    full_Path += savePath;
+    full_Path += mp3File;
     qDebug() << "Starting download ..." << url << " ..to " << tmpFile;
     m_file.setFileName(tmpFile);
     connect(this, &Downloader::progressChanged, [](qint64 received, qint64 total) {

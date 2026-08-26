@@ -12,7 +12,7 @@ class Downloader : public QObject
 public:
     explicit Downloader(QObject *parent = nullptr);
     ~Downloader();
-    Q_INVOKABLE void startDownload(const QUrl &url, const QString &savePath , const int _folder);
+    Q_INVOKABLE void startDownload(const QUrl &url, const QString &mp3File , const int _folder);
     Q_INVOKABLE QString checkSoraDownloaded(const QString& soraIndex , const int& reader);
 
 private slots:
