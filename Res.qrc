@@ -17,5 +17,15 @@
         <file>qml/Icons/quit.png</file>
         <file>qml/Icons/loop3.png</file>
         <file>qml/Icons/infinite_Read.png</file>
+        <file>qml/Icons/Splasher/quran_1.jpeg</file>
+        <file>qml/Icons/Splasher/quran_3.jpeg</file>
+        <file>qml/Icons/Splasher/quran_5.jpeg</file>
+        <file>qml/Icons/Splasher/quran_11.jpeg</file>
+        <file>qml/Icons/Splasher/quran_10.jpeg</file>
+        <file>qml/Icons/Splasher/quran_9.jpeg</file>
+        <file>qml/Icons/Splasher/quran_8.jpeg</file>
+        <file>qml/Icons/Splasher/quran_7.jpeg</file>
+        <file>qml/Icons/Splasher/quran_6.jpeg</file>
+        <file>qml/Icons/Splasher/1.png</file>
     </qresource>
 </RCC>

@@ -72,6 +72,7 @@ Item {
         running: false
         onTriggered: {
             playerQuran.play()
+            splash_Timer.start()
             if(playerQuran.mediaStatus === MediaPlayer.InvalidMedia){
                 console.log("Media is : invalid media", playerQuran.mediaStatus)
                 playerQuran.mediaValid = false
@@ -240,6 +241,36 @@ Item {
                 //bold: true
                 pixelSize: 15
             }
+        }
+    }
+    Image {
+        id: running_Splash
+        property var splashArray: [""  , "qrc:/qml/Icons/Splasher/quran_1.jpeg" , "qrc:/qml/Icons/Splasher/quran_6.jpeg" , "qrc:/qml/Icons/Splasher/quran_7.jpeg" , "qrc:/qml/Icons/Splasher/quran_8.jpeg" , "qrc:/qml/Icons/Splasher/quran_5.jpeg" , "qrc:/qml/Icons/Splasher/quran_9.jpeg" , "qrc:/qml/Icons/Splasher/quran_10.jpeg" , "qrc:/qml/Icons/Splasher/1.png"]
+        property int splashSlider: 0
+        visible: false
+        anchors.fill: _itm
+        width: window.width
+        height: window.height
+        //fillMode: Image.TileVertically
+        source: splashArray[splashSlider]
+        MouseArea{
+            anchors.fill: parent
+            onPressed: running_Splash.visible =false
+        }
+    }
+    Timer{
+        id:splash_Timer
+        running: false
+        interval: 1*60*1000 //(5 minutes)
+        onTriggered: function(){
+            console.log("image source" , running_Splash.splashArray[running_Splash.splashSlider])
+            running_Splash.visible = true
+            running_Splash.splashSlider++
+            if(running_Splash.splashSlider === running_Splash.splashArray.length){
+                running_Splash.splashSlider = 0
+            }
+
+            splash_Timer.start()
         }
     }
     Rectangle{
