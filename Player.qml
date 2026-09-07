@@ -209,12 +209,23 @@ Item {
         spacing: 5
         ComboBox {
             id:readerCombo
+            width: 180
             model: ListModel {
                 id: model
                 ListElement { text: "الشاطري" }
                 ListElement { text: "المعصراوي" }
                 ListElement { text: "عبدالباسط" }
+                ListElement { text: "محمد الطبلاوي" }
+                ListElement { text: "محمد صديق المنشاوي" }
             }
+            background: Rectangle {
+                   implicitWidth: readerCombo.width
+                   implicitHeight: readerCombo.height
+                   color: readerCombo.pressed ? "#e0e0e0" : "#f0f0f0"
+                   border.color: "#b0b0b0"
+                   border.width: 1
+                   radius: 8 // Adjust this value to make corners more or less rounded
+               }
             currentIndex: theSettings.reader
             onCurrentIndexChanged: {
                 _itm.readerID = currentIndex
@@ -457,6 +468,11 @@ Item {
         case 2:
             url = "https://server7.mp3quran.net/basit/"
             break
+        case 3:
+            url = "https://server12.mp3quran.net/tblawi/Al-Mojawwad/"
+            break
+        case 4:
+            url = "https://server10.mp3quran.net/minsh1387/"
         }
         const fileName = index + ".mp3"
         url += fileName
