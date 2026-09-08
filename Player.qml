@@ -261,7 +261,7 @@ Item {
     Timer{
         id:splash_Timer
         running: false
-        interval: 1*60*1000 //(5 minutes)
+        interval: 5*60*1000 //(5 minutes)
         onTriggered: function(){
             console.log("image source" , running_Splash.splashArray[running_Splash.splashSlider])
             running_Splash.visible = true
